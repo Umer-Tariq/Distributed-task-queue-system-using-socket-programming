@@ -1,6 +1,9 @@
 import socket
 import os
 import nltk
+
+
+
 #function to classify a review as positiv or negative. Expects one singal review as input. Returns it's class.
 def classify_review(paragraph):
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -26,18 +29,26 @@ client, addr = server.accept()
 paragraph_length = 0
 result = []
 
-while True:
-    #recieve the length of the incoming review. Problem: the length maybe of 4 digits or 3 digits.
-    received_data = client.recv(3)  
-    paragraph_length = received_data.decode('utf-8')
-    #if empty, then no more data is to be recieved and hence break the loop
-    if not paragraph_length:
-        break 
-    paragraph_length = int(paragraph_length)
-    #recieve the review
-    data = client.recv(paragraph_length).decode()
-    #classify the review and append the class in the results array
-    result.append(classify_review(data))
+current_result = ''
 
-print(result)
+while True:
+    #try:
+    data = client.recv(1024).decode()
+    #except UnicodeDecodeError as e:
+    #    print("UnicodeDecodeError:", e)
+    #    print("Skipping this data.")
+    #    continue  # Skip processing this data
+
+    if not data:  # Check if no data is received
+        break  # Exit the loop
+    if '<END>' in data:
+        parts = data.split('<END>')  # Split data using '<END>' as the delimiter
+        current_result += parts[0]  # Append the first part to the current_review
+        result.append(current_result)  # Add the complete review to reviews
+        current_result = parts[1]  # Start a new review with the second part
+    else:
+        current_result += data  # Append data to the current_review
+
+print(len(result))
+client.close()
 server.close()
