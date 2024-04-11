@@ -44,17 +44,17 @@ while True:
         current_review += data  # Append data to the current_review
 
 print("Received reviews:")
+print(len(reviews))
+
+print('--------------------------')
+
 ##Sending the reviews to the reciever one by one
-for i in range(0, len(reviews)):
-#    print(i)
-#    print(reviews[i])
-#    time.sleep(1)
-    paragraph_length = str(len(reviews[i])) #sending the length of the review first
-    print(paragraph_length) #i did this step to check how long the reviews are(4 digit length or 3 digit)
-    client2.sendall(paragraph_length.encode()) #sending the length of the review first 
-    client2.sendall(reviews[i].encode())#sending the review 
-#print(reviews[1])
-#compare_results(reviews)
+for i in reviews:
+    client2.sendall(i.encode())
+
+    client2.sendall("<END>".encode())
+
+
 
 client.close()
 server.close()
