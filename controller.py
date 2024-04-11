@@ -15,17 +15,13 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("localhost", 9999))
 server.listen()
 client, addr = server.accept()
-#rec = client.recv(1.decode()
-#port = hashmap[rec]
-#file_name = client.recv(20).decode()
-#file_size = client.recv(4).decode()
+#rec = client.recv().decode()
+port = 9996
 
-#client2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#client2.connect(("localhost", port))
 
-#client2.send(file_name.encode())
-#print(file_name)
-#client2.send(str(file_size).encode())
+client2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client2.connect(("localhost", port))
+
 reviews = []
 current_review = ''
 
@@ -48,14 +44,18 @@ while True:
         current_review += data  # Append data to the current_review
 
 print("Received reviews:")
+##Sending the reviews to the reciever one by one
 for i in range(0, len(reviews)):
-    print(i)
-    print(reviews[i])
+#    print(i)
+#    print(reviews[i])
 #    time.sleep(1)
-
+    paragraph_length = str(len(reviews[i])) #sending the length of the review first
+    print(paragraph_length) #i did this step to check how long the reviews are(4 digit length or 3 digit)
+    client2.sendall(paragraph_length.encode()) #sending the length of the review first 
+    client2.sendall(reviews[i].encode())#sending the review 
 #print(reviews[1])
 #compare_results(reviews)
 
 client.close()
 server.close()
-#client2.close()
+client2.close()

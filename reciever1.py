@@ -1,14 +1,11 @@
 import socket
 import os
 import nltk
-
-def classify_review(review):
+#function to classify a review as positiv or negative. Expects one singal review as input. Returns it's class.
+def classify_review(paragraph):
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
     sid = SentimentIntensityAnalyzer()
-
-    paragraph = "I loved the new movie. The acting was great, and the plot was engaging. " \
-                "However, the ending was a bit disappointing."
 
     sentiment_scores = sid.polarity_scores(paragraph)
 
@@ -20,31 +17,27 @@ def classify_review(review):
         sentiment = 'Neutral'
 
     return sentiment
-
+#establishing connection via port 9996. the connection is established between the controller and the reciever
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("localhost", 9996))
 server.listen()
 client, addr = server.accept()
 
-file_name = client.recv(20).decode()
-print(file_name)
-print('----------\n')
-#file_size = client.recv(4).decode()
-#print (file_size)
-file = open(file_name, "wb")
-file_bytes = b""
-done = False
+paragraph_length = 0
+result = []
 
-while done == False:
-    data = client.recv(1024)
+while True:
+    #recieve the length of the incoming review. Problem: the length maybe of 4 digits or 3 digits.
+    received_data = client.recv(3)  
+    paragraph_length = received_data.decode('utf-8')
+    #if empty, then no more data is to be recieved and hence break the loop
+    if not paragraph_length:
+        break 
+    paragraph_length = int(paragraph_length)
+    #recieve the review
+    data = client.recv(paragraph_length).decode()
+    #classify the review and append the class in the results array
+    result.append(classify_review(data))
 
-    if file_bytes [-5:] == b"<END>":
-        done = True
-    else:
-        file_bytes += data
-
-file.write(file_bytes)
-file_size = os.path.getsize("sample2.txt")
-print('received size = ', file_size)
-file.close()
+print(result)
 server.close()
