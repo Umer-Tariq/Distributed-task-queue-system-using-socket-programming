@@ -4,7 +4,7 @@ import time
 import pandas as pd
 df = pd.read_excel('movies.xlsx')
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("localhost", 9998))
+client.connect(("localhost", 9999))
 
 #file_size = os.path.getsize("sample2.txt")
 #print(file_size)
@@ -28,4 +28,5 @@ for i in df['review']:
 
     client.sendall("<END>".encode())
     im += 1
+
 client.close()

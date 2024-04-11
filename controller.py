@@ -1,10 +1,18 @@
 import socket
 import os
 import time
+import pandas as pd
+
+def compare_results(reviews):
+    df = pd.read_excel('movies.xlsx')
+    for i in df['review']:
+        if i not in reviews:
+            print("*******************************************************")
+            print(i)
 
 #hashmap = { "receiver_1" : 9996 }
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("localhost", 9998))
+server.bind(("localhost", 9999))
 server.listen()
 client, addr = server.accept()
 #rec = client.recv(1.decode()
@@ -39,14 +47,14 @@ while True:
     else:
         current_review += data  # Append data to the current_review
 
-
-#print("Received reviews:")
+print("Received reviews:")
 for i in range(0, len(reviews)):
     print(i)
     print(reviews[i])
-    time.sleep(1)
+#    time.sleep(1)
 
 #print(reviews[1])
+#compare_results(reviews)
 
 client.close()
 server.close()

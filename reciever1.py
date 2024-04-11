@@ -1,5 +1,25 @@
 import socket
 import os
+import nltk
+
+def classify_review(review):
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+    sid = SentimentIntensityAnalyzer()
+
+    paragraph = "I loved the new movie. The acting was great, and the plot was engaging. " \
+                "However, the ending was a bit disappointing."
+
+    sentiment_scores = sid.polarity_scores(paragraph)
+
+    if sentiment_scores['compound'] >= 0.05:
+        sentiment = 'Positive'
+    elif sentiment_scores['compound'] <= -0.05:
+        sentiment = 'Negative'
+    else:
+        sentiment = 'Neutral'
+
+    return sentiment
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("localhost", 9996))
