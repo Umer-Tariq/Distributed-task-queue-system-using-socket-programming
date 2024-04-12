@@ -32,22 +32,26 @@ result = []
 current_result = ''
 
 while True:
-    #try:
-    data = client.recv(1024).decode()
-    #except UnicodeDecodeError as e:
-    #    print("UnicodeDecodeError:", e)
-    #    print("Skipping this data.")
-    #    continue  # Skip processing this data
+    try:
+        data = client.recv(1024).decode()
+    except UnicodeDecodeError as e:
+        print("UnicodeDecodeError:", e)
+        print("Skipping this data.")
+        continue  # Skip processing this data
 
     if not data:  # Check if no data is received
         break  # Exit the loop
-    if '<END>' in data:
-        parts = data.split('<END>')  # Split data using '<END>' as the delimiter
-        current_result += parts[0]  # Append the first part to the current_review
-        result.append(current_result)  # Add the complete review to reviews
-        current_result = parts[1]  # Start a new review with the second part
-    else:
-        current_result += data  # Append data to the current_review
+    
+    parts = data.split('<END>')  # Split data using '<END>' as the delimiter
+    for part in parts[:-1]:  # Iterate over all parts except the last one
+        current_result += part  # Append the part to the current_result
+        result.append(current_result)  # Add the complete result to result
+        current_result = ''  # Reset current_result for the next result
+
+    current_result += parts[-1]  # Append the last part to the current_result
+
+if current_result:  # Check if there's any remaining data in current_result
+    result.append(current_result)  # Add the last result to result
 
 print(len(result))
 client.close()
