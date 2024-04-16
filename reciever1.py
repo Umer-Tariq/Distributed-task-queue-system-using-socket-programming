@@ -2,6 +2,7 @@ import socket
 import os
 import nltk
 import threading
+import csv
 
 #function to classify a review as positiv or negative. Expects one singal review as input. Returns it's class.
 def classify_review(paragraph):
@@ -19,11 +20,23 @@ def classify_review(paragraph):
         sentiment = 'Neutral'
 
     return sentiment
-#establishing connection via port 9996. the connection is established between the controller and the reciever
 
-def calc_Sentiment(result, lb, ub, Sentiments):
-    for i in range(lb, ub + 1):
-        Sentiments[i] = classify_review(result[i])
+def write_csv_headers(file_name, headers):
+    with open(file_name, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(headers)
+
+
+def calc_Sentiment(result, lb, ub, Sentiments, file_name):
+    with open(file_name, 'a', newline='') as file:
+        writer = csv.writer(file)
+        for i in range(lb, ub + 1):
+            Sentiments[i] = classify_review(result[i])
+            lock.acquire()
+            writer.writerow([result[i], Sentiments[i]])
+            lock.release()
+        
+    print(f'Successfully wrote data to {file_name}')
 
 
 
@@ -59,21 +72,24 @@ while True:
 if current_result:  # Check if there's any remaining data in current_result
     result.append(current_result)  # Add the last result to result
 
-print(len(result))
+
 client.close()
 server.close()
 
+lock = threading.Lock()
 Sentiments = ['0'] * len(result)
 sender_threads = []
 #calculaTing senTimenT analsis on resulTs
 num_threads = 5
 total_rows = len(result)
 rows_per_sender = total_rows // num_threads 
-#print(rows_per_sender)
 lb = 0
 ub = lb + rows_per_sender
+file_name = 'movies_results.csv'
+headers = ['Review', 'Sentiment']
+write_csv_headers(file_name, headers)
 for i in range(0, num_threads):
-    sender_thread = threading.Thread(target=calc_Sentiment, args=(result, lb, ub, Sentiments))
+    sender_thread = threading.Thread(target=calc_Sentiment, args=(result, lb, ub, Sentiments, file_name))
     sender_threads.append(sender_thread)
     lb = ub + 1  # Move to the next set of rows for the next sender
     ub = lb + rows_per_sender 
@@ -85,3 +101,7 @@ for thread in sender_threads:
 
 for thread in sender_threads:
     thread.join()
+
+
+print(len(Sentiments))
+server.close()
