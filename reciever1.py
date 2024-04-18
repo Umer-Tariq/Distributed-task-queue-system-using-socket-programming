@@ -4,6 +4,8 @@ import nltk
 import threading
 import csv
 
+nltk.download('vader_lexicon')
+
 #function to classify a review as positiv or negative. Expects one singal review as input. Returns it's class.
 def classify_review(paragraph):
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -41,7 +43,7 @@ def calc_Sentiment(result, lb, ub, Sentiments, file_name):
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("localhost", 9996))
+server.bind(("localhost", 9997))
 server.listen()
 client, addr = server.accept()
 
@@ -68,7 +70,15 @@ while True:
         current_result = ''  # Reset current_result for the next result
 
     current_result += parts[-1]  # Append the last part to the current_result
+##
+s = socket.socket()
 
+s.connect(("localhost",9988))
+msg = "ACK"
+s.send(msg.encode('utf-8'))
+
+
+##
 if current_result:  # Check if there's any remaining data in current_result
     result.append(current_result)  # Add the last result to result
 
@@ -78,6 +88,12 @@ server.close()
 
 lock = threading.Lock()
 Sentiments = ['0'] * len(result)
+#
+pkt_rcv = str(len(Sentiments))
+print(pkt_rcv)
+s.send(pkt_rcv.encode('utf-8'))
+s.close()
+#
 sender_threads = []
 #calculaTing senTimenT analsis on resulTs
 num_threads = 5
@@ -102,6 +118,5 @@ for thread in sender_threads:
 for thread in sender_threads:
     thread.join()
 
-
-print(len(Sentiments))
 server.close()
+

@@ -85,7 +85,7 @@ while True:
     break
 
 
-port = 9996
+port = 9997 
 client2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client2.connect(("localhost", port))
 ##Sending the reviews to the reciever one by one
