@@ -6,6 +6,39 @@ import csv
 
 nltk.download('vader_lexicon')
 
+encryption_mapping = {
+    'A': 'C', 'B': 'D', 'C': 'E', 'D': 'F', 'E': 'G', 'F': 'H', 'G': 'I', 'H': 'J',
+    'I': 'K', 'J': 'L', 'K': 'M', 'L': 'N', 'M': 'O', 'N': 'P', 'O': 'Q', 'P': 'R',
+    'Q': 'S', 'R': 'T', 'S': 'U', 'T': 'V', 'U': 'W', 'V': 'X', 'W': 'Y', 'X': 'Z',
+    'Y': 'A', 'Z': 'B',
+    'a': 'c', 'b': 'd', 'c': 'e', 'd': 'f', 'e': 'g', 'f': 'h', 'g': 'i', 'h': 'j',
+    'i': 'k', 'j': 'l', 'k': 'm', 'l': 'n', 'm': 'o', 'n': 'p', 'o': 'q', 'p': 'r',
+    'q': 's', 'r': 't', 's': 'u', 't': 'v', 'u': 'w', 'v': 'x', 'w': 'y', 'x': 'z',
+    'y': 'a', 'z': 'b',
+    '0': '2', '1': '3', '2': '4', '3': '5', '4': '6',
+    '5': '7', '6': '8', '7': '9', '8': '0', '9': '1', "!" : ',', ',' : ".", "." : '!', ' ' : ' '
+    
+}
+
+decryption_mapping = {v: k for k, v in encryption_mapping.items()}
+
+def enrypt_string(string):
+    result = ''
+    for c in string:
+        if c in encryption_mapping:
+            result += encryption_mapping[c]
+        
+    return result
+
+def decrypt_string(string):
+    result = ''
+    for c in string:
+        if c in decryption_mapping:
+            result += decryption_mapping[c]
+        
+    return result
+
+
 #function to classify a review as positiv or negative. Expects one singal review as input. Returns it's class.
 def classify_review(paragraph):
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -65,7 +98,8 @@ while True:
     
     parts = data.split('<END>')  # Split data using '<END>' as the delimiter
     for part in parts[:-1]:  # Iterate over all parts except the last one
-        current_result += part  # Append the part to the current_result
+        current_result += part
+        current_result = decrypt_string(current_result)
         result.append(current_result)  # Add the complete result to result
         current_result = ''  # Reset current_result for the next result
 
@@ -79,7 +113,8 @@ s.send(msg.encode('utf-8'))
 
 
 ##
-if current_result:  # Check if there's any remaining data in current_result
+if current_result:
+    current_result = decrypt_string(current_result)  # Check if there's any remaining data in current_result
     result.append(current_result)  # Add the last result to result
 
 
